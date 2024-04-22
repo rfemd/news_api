@@ -1,0 +1,166 @@
+
+{% extends 'base.html' %}
+
+
+{% block title %}
+
+{% endblock title %}
+
+
+
+
+{% block content %}
+  {% load static %}
+
+
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col"></th>
+      <th scope="col"></th>
+
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th scope="row"></th>
+      <td>
+<p class="text-center">
+	Введите тэг новости из списка:
+
+<ul>
+	{% for obj in all_tags %}
+	<li>
+	{{obj}}
+</li>
+	{% endfor %}
+</ul>
+
+
+      </td>
+      <td>
+      	Введите название тэга в поле ввода:
+	<form action="" method="POST">
+	    {%csrf_token%}
+	    {{t_form}}
+	        <button type="submit" class="save btn btn-default btn btn-success">Показать результаты</button>
+	</form>
+
+      </td>
+
+    </tr>
+
+  </tbody>
+</table>
+
+
+
+
+
+
+</p>
+
+
+
+
+{% for obj in qs %}
+<div class="col d-flex justify-content-center">
+<div class="card p-3" style="width: 50rem;">
+	  <img class="card-img-top" src="{{obj.picture.url}}" alt="Card image cap">
+	  <div class="card-body">
+	    <p class="card-text">
+			<a href="/news/{{obj.pk}}/">	{{obj.title}}</a>
+			<br>
+			{{obj.text}}
+			<br>
+			
+			{{obj.tag}}
+			<br>
+			<form action="{% url 'news:like-news-view' %}" method="POST" class='like-form' id='{{obj.id}}'>
+		                        {% csrf_token %}
+		                        <input type="hidden" name="news_id" value={{obj.id}}>
+		                        
+		                            <button type="submit" class="button like-btn{{obj.id}} btn btn-primary">
+		                            	{% if request.user in obj.likes.all  %}
+		                              
+		                                    Dislike 
+		                                {% else %}
+		                                    Like 
+		                                {% endif %}
+		                            </button>
+		                      
+		                                <div class="column">
+		                                    <div class="like-count{{obj.id}}"> {{obj.num_likes}} </div> 
+		                                </div>
+		                                <div class="column">лайков</div>
+		                                
+		    </form>
+		</p>
+	</div>
+</div>
+
+</div>
+{% endfor %}
+
+{% endblock content %}
+
+
+{% block scripts %} 
+
+
+
+
+
+<script type="text/javascript">
+	$(document).ready(function(){
+
+		$('.like-form').submit(function(e){
+			e.preventDefault();
+
+			const news_id = $(this).attr('id')
+
+			
+			const likeText = $(`.like-btn${news_id}`).text()
+			const trim = $.trim(likeText)
+			
+			const url = $(this).attr('action')
+
+			let res
+
+			const likes = $(`.like-count${news_id}`).text()
+			const trimCount = parseInt(likes)
+			
+
+			$.ajax({
+				type: 'POST',
+				url: url,
+				data : {
+					'csrfmiddlewaretoken':$('input[name=csrfmiddlewaretoken]').val(),
+					'news_id':news_id,
+				},
+				success: function(response){
+					
+					if (trim === 'Unlike'){
+						$(`.like-btn${news_id}`).text('Like')
+						res = trimCount -1
+						$(`.like-count${news_id}`).text(res)
+					}else{
+						$(`.like-btn${news_id}`).text('Unlike')
+						res = trimCount +1
+						console.log(res)
+						$(`.like-count${news_id}`).text(res)
+					}
+
+				},
+				error: function(response){
+					console.log('error',response)
+				}
+			})
+
+		})
+
+	});
+</script>
+
+
+{% endblock scripts %}

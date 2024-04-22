@@ -1,0 +1,43 @@
+
+{% extends 'base.html' %}
+
+
+{% block title %}
+
+{% endblock title %}
+
+
+
+
+{% block content %}
+
+
+{% load hitcount_tags %}
+
+<div class="col d-flex justify-content-center">
+
+<div class="card p-3" style="width: 50rem;">
+	  <img class="card-img-top" src="{{news.picture.url}}" alt="Card image cap">
+	  <div class="card-body">
+	    <p class="card-text">
+			  <p class="text-end fs-6">{{news.tag}}</p>             
+		    {{news.title}} | {% get_hit_count for news %} views
+			<br>
+			{{news.text}}
+
+			
+		
+		</p>
+	</div>
+</div>
+
+</div>
+{% endblock content %}
+
+
+
+
+
+
+
+
